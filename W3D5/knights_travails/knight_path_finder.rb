@@ -1,10 +1,8 @@
 require_relative "board"
-require_relative "PolyTreeNode"
+require_relative "poly_tree_node"
+require "byebug"
 
 class KnightPathFinder
-    # MOVES = {[2,1][2,-1][]}
-    # MOVES = {[[row - 2][col + 1]}
-    # MOVES [[1,2][2,1]] pos(3,3) new_pos= pos[0] +move[0]
 
     MOVES = [
         [2,1], 
@@ -18,32 +16,44 @@ class KnightPathFinder
     ]
 
     def self.valid_moves(start)
-        possible_moves = new_pos(start).select do |move| 
-            row, col = move
-            (0..7).include?(row) && (0..7).include?(col)
-        end
-        possible_moves
-    end
-
-    def new_pos(pos)
-        start = pos
+        new_positions = []
         MOVES.each do |move|
             row,col = move 
             row_start,col_start = start
-            pos_new = [row+ row_start, col+ col_start]
-            new_positions << pos_new 
+            pos_new = [row + row_start, col + col_start]
+            new_positions << pos_new if (0..7).include?(row) && (0..7).include?(col)
         end
         new_positions
     end
 
+    
+    attr_reader :start_pos, :considered_positions
+
     def initialize(position)
-        @start_pos = position
+        @start_pos = PolyTreeNode.new(position) 
+        @considered_positions = [@start_pos]
+        build_move_tree
     end
 
-    attr_reader :start_pos
-
+    def new_move_positions(pos)
+        new_positions = KnightPathFinder.valid_moves(pos).select {|pos| @considered_positions.include?(pos)}
+        @considered_positions += new_positions
+        return new_positions
+    end
+    
+    #build all possible positions from the root
     def build_move_tree()
-        
+        queue = [@start_pos]
+
+        until queue.empty?
+            current_pos = queue.shift
+            new_positions = new_move_positions(current_pos.value)
+            new_move_positions.each do |new_pos| #all new possitions are child of new node
+                child = PolyTreeNode.new(new_pos)
+                current_pos.add_child(child)
+                queue << child
+            end
+        end
     end
 
     def find_path(end_pos)
