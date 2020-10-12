@@ -1,0 +1,56 @@
+<% if is_edit %> 
+    <% action = cat_url(cat) %> 
+    <% button_text = 'Update Cat' %> 
+<% else %> 
+    <% action = cats_url %> 
+    <% button_text = 'Create Cat' %> 
+<% end %> 
+<form action="<%= action %>" method = "POST" > 
+    <% if is_edit %> 
+        <input type='hidden' name='_method' value="PATCH"> 
+    <% end %> 
+    <label> Name: 
+        <input 
+            type = 'text' 
+            name = 'cat[name]' 
+            value = '<%= cat.name %>'>  
+    </label> 
+    <label> Birthday: 
+    <input 
+        type = 'date' 
+        name = 'cat[birth_date]' 
+        value = '<%= cat.birth_date %>'>  
+    </label>
+    <label> Color: 
+    <select name = "cat[color]" > 
+    <% if is_edit %> 
+        <option value="<%= cat.color %>" selected> <%= cat.color %> </option>
+    <% else %>
+        <option value="" selected> Select a Color </option>
+    <% end %> 
+       <% Cat::COLOR.each do |color| %>
+        <option value ="<%=color%>"> "<%=color%>"</option>
+       <% end %>
+    </select>
+    </label>
+    <label> Description: 
+    <input 
+        type = 'text' 
+        name = 'cat[description]' 
+        value = '<%= cat.description %>'>  
+    </label>
+        <% if is_edit && cat.sex == "M" %> 
+            <input type='radio' id='male' name="cat[sex]" value="M" checked >
+        <% else %>
+            <input type='radio' id='male' name="cat[sex]" value="M">
+        <% end %>
+            <label for='male'> M </label>
+        <% if is_edit && cat.sex == "F" %> 
+            <input type='radio' id='female' name="cat[sex]" value="F" checked>
+        <% else %>
+            <input type='radio' id='female' name="cat[sex]" value="F">
+        <% end %>
+    <label for='female'> F </label>
+
+    <input type="submit" value="<%= button_text %>">
+</form>
